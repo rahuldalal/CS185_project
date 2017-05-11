@@ -54,9 +54,28 @@ public class TestData {
 		/*System.out.println("business --> Columns");
 		for(String column : business.columns())
 			System.out.print(column+", ");*/
-		Dataset<Row> noOfBizCity = business.groupBy("city","primaryNAICSDescription").count().filter("count >= 5").sort(desc("count"));
-		noOfBizCity.show(1000);
-		JavaRDD<Row> noOfBizCityRDD = noOfBizCity.toJavaRDD();
+		//Countwise Highest business
+		System.out.println("--------Highest count-----");
+		Dataset<Row> bizSortCity = business.groupBy("city","primaryNAICSDescription").count().filter("count >= 5").sort("city");
+		bizSortCity.show(1000);
+		
+		System.out.println("--------Citywise count of businesses-----");
+		Dataset<Row> bizSortCount = business.groupBy("city","primaryNAICSDescription").count().filter("count >= 5").sort(desc("count"));
+		bizSortCount.show(5000);
+		
+		System.out.println("--------ZipCode count of businesses-----");
+		Dataset<Row> bizSortZipCluster = business.groupBy("zipCode","primaryNAICSDescription").count().filter("count >= 5").sort("zipCode");
+		bizSortZipCluster.show(5000);
+		
+		System.out.println("--------ZipCode count of businesses-----");
+		Dataset<Row> bizSortZipCount = business.groupBy("zipCode","primaryNAICSDescription").count().filter("count >= 5").sort(desc("count"));
+		bizSortZipCount.show(5000);
+		
+		JavaRDD<Row> bizSortCityRDD = bizSortCity.toJavaRDD();
+		JavaRDD<Row> bizSortCountRDD = bizSortCount.toJavaRDD();
+		
+		JavaRDD<Row> bizSortZipClusterRDD = bizSortZipCluster.toJavaRDD();
+		JavaRDD<Row> bizSortZipCountRDD = bizSortZipCount.toJavaRDD();
 		
 	/*	for(String column : noOfBizCity.columns())
 			System.out.print(column+", ");
@@ -65,8 +84,13 @@ public class TestData {
 		noOfBizCity.foreach((ForeachFunction<Row>) row -> System.out.println(row.toString()));
 	*/	//noOfBizCity.foreach((ForeachFunction<Row>) row -> System.out.println(row.toString()));
         // Save the word count back out to a text file, causing evaluation.
-	//	noOfBizCityRDD.saveAsTextFile("src/main/resources/output_filter");
-
+		
+		bizSortCityRDD.saveAsTextFile("src/main/resources/output_cityCluster");
+		bizSortCountRDD.saveAsTextFile("src/main/resources/output_globalCount");
+		
+		bizSortZipClusterRDD.saveAsTextFile("src/main/resources/output_zipCodeCluster");
+		bizSortZipCountRDD.saveAsTextFile("src/main/resources/output_zipCodeCount");
+		
 		spark.stop();
     }
     
